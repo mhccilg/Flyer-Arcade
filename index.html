@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flyer Arcade | Chaminade High School</title>
+
+  <style>
+    /* Chaminade Brand Palette & System Styles */
+    :root {
+      --crimson: #800000;
+      --crimson-dark: #4A0A10;
+      --crimson-light: #9E1B27;
+      --gold: #D4AF37;
+      --gold-light: #F3E5AB;
+      --sand: #F7F6F2;
+      --stone-100: #f5f5f4;
+      --stone-200: #e7e5e4;
+      --stone-300: #d6d3d1;
+      --stone-600: #57534e;
+      --stone-800: #292524;
+      --stone-900: #1c1917;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--sand); color: var(--stone-900); display: flex; min-height: 100vh; }
+
+    /* Layout */
+    aside { width: 260px; background: #fff; border-right: 1px solid var(--stone-200); padding: 24px; display: flex; flex-direction: column; justify-content: space-between; flex-shrink: 0; }
+    main { flex: 1; display: flex; flex-direction: column; min-height: 100vh; overflow-y: auto; }
+
+    /* Sidebar */
+    .brand { display: flex; items-center; gap: 12px; margin-bottom: 32px; }
+    .brand-logo { width: 40px; height: 40px; background: var(--crimson); color: var(--gold); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-family: serif; font-size: 24px; }
+    .brand-title { font-weight: bold; font-size: 16px; color: var(--crimson-dark); }
+    .brand-sub { font-size: 11px; text-transform: uppercase; color: var(--stone-600); letter-spacing: 1px; font-weight: 600; }
+
+    .nav-label { font-size: 11px; text-transform: uppercase; color: var(--stone-600); font-weight: bold; margin-bottom: 12px; letter-spacing: 0.5px; }
+    .nav-btn { width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: none; background: transparent; border-radius: 8px; font-weight: 600; font-size: 14px; color: var(--stone-600); cursor: pointer; text-align: left; margin-bottom: 4px; }
+    .nav-btn.active { background: rgba(128, 0, 0, 0.1); color: var(--crimson); font-weight: bold; }
+    .nav-btn:hover:not(.active) { background: var(--stone-100); }
+
+    /* Header */
+    header { background: #fff; border-bottom: 1px solid var(--stone-200); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 20; }
+    .breadcrumb { font-size: 13px; color: var(--stone-600); display: flex; align-items: center; gap: 6px; }
+    .header-actions { display: flex; align-items: center; gap: 14px; }
+    .search-bar { padding: 8px 14px; border: 1px solid var(--stone-300); border-radius: 8px; font-size: 14px; background: #fafaf9; width: 220px; outline: none; }
+    .search-bar:focus { background: #fff; border-color: var(--crimson); }
+
+    .btn-add { background: var(--crimson); color: #fff; border: none; border-radius: 8px; padding: 9px 18px; font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .btn-add:hover { background: var(--crimson-light); }
+
+    /* Hero Banner */
+    .content-wrap { padding: 32px; max-width: 1200px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 32px; }
+    .hero-banner { background: linear-gradient(135deg, var(--crimson-dark), var(--crimson), var(--crimson-light)); border-radius: 16px; padding: 36px; color: #fff; position: relative; overflow: hidden; border: 1px solid rgba(212, 175, 55, 0.3); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .hero-badge { background: rgba(0,0,0,0.3); color: var(--gold); padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; display: inline-block; }
+    .hero-title { font-size: 36px; font-weight: 900; line-height: 1.1; margin-top: 14px; letter-spacing: -0.5px; }
+    .hero-title span { color: var(--gold); }
+    .hero-desc { font-size: 14px; color: #e7e5e4; margin-top: 12px; max-width: 500px; line-height: 1.4; }
+    .hero-btn { margin-top: 20px; background: #fff; color: var(--crimson-dark); border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; }
+    .hero-btn:hover { background: var(--gold-light); }
+
+    /* Catalog & Filters */
+    .catalog-head { display: flex; justify-content: space-between; align-items: flex-end; }
+    .catalog-title { font-size: 20px; font-weight: bold; }
+    .catalog-sub { font-size: 12px; color: var(--stone-600); margin-top: 2px; }
+    .count-badge { font-size: 12px; font-weight: 600; background: var(--stone-200); padding: 4px 10px; border-radius: 20px; }
+
+    .filters { display: flex; gap: 8px; border-bottom: 1px solid var(--stone-200); padding-bottom: 12px; }
+    .filter-btn { border: none; background: transparent; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; color: var(--stone-600); cursor: pointer; }
+    .filter-btn.active { background: var(--stone-900); color: #fff; }
+    .filter-btn:hover:not(.active) { background: var(--stone-200); }
+
+    /* Grid & Cards */
+    .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .game-card { background: #fff; border: 1px solid var(--stone-200); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .game-cover { height: 130px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; color: #fff; }
+    .game-badge { background: rgba(0,0,0,0.4); padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; width: max-content; }
+    .game-icon-bg { font-size: 40px; text-align: center; opacity: 0.3; user-select: none; }
+    .game-body { padding: 16px; display: flex; align-items: center; justify-content: space-between; }
+    .game-name { font-size: 14px; font-weight: bold; color: var(--stone-900); }
+    .game-meta { font-size: 12px; color: var(--stone-600); margin-top: 2px; }
+    .play-btn { background: var(--stone-100); border: none; padding: 6px 16px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; color: var(--stone-800); }
+    .play-btn:hover { background: var(--crimson); color: #fff; }
+
+    .add-placeholder-card { border: 2px dashed var(--stone-300); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; min-height: 200px; }
+    .add-placeholder-card:hover { border-color: var(--crimson); }
+    .plus-circle { width: 40px; height: 40px; border-radius: 50%; background: rgba(128,0,0,0.1); color: var(--crimson); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; margin-bottom: 12px; }
+
+    /* Modals */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .modal-overlay.hidden { display: none !important; }
+    .modal-card { background: #fff; border-radius: 16px; width: 100%; max-width: 480px; padding: 28px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    .close-btn { position: absolute; top: 16px; right: 16px; border: none; background: transparent; font-size: 22px; cursor: pointer; color: var(--stone-600); }
+
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 6px; color: var(--stone-800); }
+    .form-input { width: 100%; padding: 10px 14px; border: 1px solid var(--stone-300); border-radius: 8px; font-size: 14px; outline: none; }
+    .form-input:focus { border-color: var(--crimson); }
+
+    .method-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .method-btn { padding: 8px; border: 1px solid var(--stone-300); border-radius: 6px; background: #fff; font-size: 12px; font-weight: bold; cursor: pointer; color: var(--stone-600); }
+    .method-btn.active { border-color: var(--crimson); background: rgba(128,0,0,0.08); color: var(--crimson); }
+
+    .file-dropzone { border: 2px dashed var(--stone-300); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; }
+    .file-dropzone:hover { border-color: var(--crimson); }
+
+    .submit-btn { width: 100%; padding: 12px; background: var(--crimson); color: #fff; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; margin-top: 10px; }
+    .submit-btn:hover { background: var(--crimson-light); }
+
+    /* Player Modal */
+    .player-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 200; display: flex; flex-direction: column; }
+    .player-overlay.hidden { display: none !important; }
+    .player-header { background: #1c1917; color: #fff; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #292524; }
+    .player-body { flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .game-iframe { width: 100%; height: 100%; max-width: 1000px; max-height: 700px; border: none; border-radius: 8px; background: #fff; }
+
+    @media (max-width: 768px) {
+      body { flex-direction: column; }
+      aside { width: 100%; border-right: none; border-bottom: 1px solid var(--stone-200); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside>
+    <div>
+      <div class="brand">
+        <div class="brand-logo">C</div>
+        <div>
+          <div class="brand-title">FLYER ARCADE</div>
+          <div class="brand-sub">Chaminade High School</div>
+        </div>
+      </div>
+
+      <div class="nav-label">Your Playbook</div>
+      <button class="nav-btn active" id="tab-discover" onclick="switchTab('discover')">🧭 Discover</button>
+      <button class="nav-btn" id="tab-my-uploads" onclick="switchTab('my-uploads')">☁️ My Uploads</button>
+      <button class="nav-btn" id="tab-recent" onclick="switchTab('recent')">⏱️ Recently Played</button>
+    </div>
+
+    <div style="font-size: 11px; color: var(--stone-600); border-top: 1px solid var(--stone-200); padding-top: 16px;">
+      <strong style="color: var(--crimson); text-transform: uppercase;">Red. Gold. Game On.</strong><br/>
+      Fortes in Fide. A Marianist student showcase.
+    </div>
+  </aside>
+
+  <!-- Main View -->
+  <main>
+    <header>
+      <div class="breadcrumb">The arcade &rsaquo; <strong id="breadcrumb-title" style="color: var(--stone-900);">Discover</strong></div>
+      <div class="header-actions">
+        <input type="text" id="search-input" class="search-bar" placeholder="Search games..." oninput="renderGamesList()" />
+        <button class="btn-add" onclick="showUploadModal()">+ Add a game</button>
+      </div>
+    </header>
+
+    <div class="content-wrap">
+      <div class="hero-banner">
+        <span class="hero-badge">The Flyer Collection</span>
+        <h1 class="hero-title">YOUR NEXT<br/><span>HIGH SCORE.</span></h1>
+        <p class="hero-desc">Your games. Your home court. A Chaminade-inspired arcade built for one more round.</p>
+        <button class="hero-btn" onclick="document.getElementById('catalog-anchor').scrollIntoView({behavior: 'smooth'})">Explore the arcade &rarr;</button>
+      </div>
+
+      <div id="catalog-anchor">
+        <div class="catalog-head">
+          <div>
+            <h2 class="catalog-title">Pick your next obsession.</h2>
+            <p class="catalog-sub">A study break, upgraded. Click a game and jump right in.</p>
+          </div>
+          <span class="count-badge" id="games-total-badge">3 games</span>
+        </div>
+      </div>
+
+      <div class="filters">
+        <button class="filter-btn active" data-cat="all" onclick="setCategoryFilter('all')">All games</button>
+        <button class="filter-btn" data-cat="Arcade" onclick="setCategoryFilter('Arcade')">Arcade</button>
+        <button class="filter-btn" data-cat="Puzzle" onclick="setCategoryFilter('Puzzle')">Puzzle</button>
+        <button class="filter-btn" data-cat="Sports" onclick="setCategoryFilter('Sports')">Sports</button>
+        <button class="filter-btn" data-cat="Other" onclick="setCategoryFilter('Other')">Other</button>
+      </div>
+
+      <div class="games-grid" id="games-grid">
+        <!-- Rendered instantly by Javascript below -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Upload Modal -->
+  <div class="modal-overlay hidden" id="upload-modal">
+    <div class="modal-card">
+      <button class="close-btn" onclick="hideUploadModal()">&times;</button>
+      <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 4px;">Make room for a new favorite.</h3>
+      <p style="font-size: 12px; color: var(--stone-600); margin-bottom: 20px;">Publish a game to the shared arcade for all Chaminade students.</p>
+
+      <form id="upload-form" onsubmit="submitNewGame(event)">
+        <div class="form-group">
+          <label class="form-label">Game title *</label>
+          <input type="text" id="game-title" class="form-input" placeholder="Give your game a name" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Category *</label>
+          <select id="game-cat" class="form-input">
+            <option value="Arcade">Arcade</option>
+            <option value="Puzzle">Puzzle</option>
+            <option value="Sports">Sports</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Upload Method</label>
+          <div class="method-tabs">
+            <button type="button" class="method-btn active" id="tab-method-html" onclick="setMethod('html')">HTML file</button>
+            <button type="button" class="method-btn" id="tab-method-url" onclick="setMethod('url')">Website link</button>
+          </div>
+
+          <div id="method-html-wrap" class="file-dropzone" onclick="document.getElementById('file-picker').click()">
+            <div style="font-size: 24px; margin-bottom: 6px;">📄</div>
+            <div style="font-size: 13px; font-weight: bold;">Choose a standalone .html file</div>
+            <div style="font-size: 11px; color: var(--stone-600); margin-top: 4px;">Single-file game with bundled scripts</div>
+            <input type="file" id="file-picker" accept=".html,.htm" style="display:none;" onchange="updateFilePicked(this)" />
+            <div id="file-chosen-text" style="font-size: 12px; font-weight: bold; color: var(--crimson); margin-top: 8px;"></div>
+          </div>
+
+          <div id="method-url-wrap" style="display:none;">
+            <input type="url" id="game-url" class="form-input" placeholder="https://example.com/game" />
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submit-btn">Add to arcade &rarr;</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Game Runner Modal -->
+  <div class="player-overlay hidden" id="player-modal">
+    <div class="player-header">
+      <div style="display: flex; align-items: center; gap: 8px; font-weight: bold; font-size: 14px;">
+        <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--crimson);"></span>
+        <span id="player-game-title">Game</span>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button onclick="toggleFullscreen()" style="padding: 6px 12px; background: #292524; color: #fff; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;">Fullscreen</button>
+        <button onclick="closeGamePlayer()" style="padding: 6px 12px; background: var(--crimson); color: #fff; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;">Close &times;</button>
+      </div>
+    </div>
+    <div class="player-body">
+      <iframe class="game-iframe" id="game-frame" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // 1. SUPABASE REST ENDPOINTS & KEYS
+    // ==========================================
+    const SUPABASE_URL = "https://owxgkopzbmrrdwsptbof.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_ZLcl4_ffdL4CamEjWgXqnw__M__yXYl";
+
+    // Playable mini-games embedded
+    const gamesCatalog = [
+      {
+        id: "1",
+        title: "Michael Heavenly Chambers",
+        category: "Arcade",
+        badge: "Arcade Original",
+        color: "#800000",
+        html: `<!DOCTYPE html><html><body style="margin:0;background:#1e1b4b;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif"><h1 style="color:#D4AF37;letter-spacing:2px">MICHAEL HEAVENLY CHAMBERS</h1><p>Marianist Sky Platformer Demo</p><button onclick="alert('Mission Started: Explore the Heavenly Chambers!')" style="padding:12px 24px;background:#D4AF37;color:#4A0A10;border:none;border-radius:6px;font-weight:bold;cursor:pointer;margin-top:15px">START MISSION</button></body></html>`,
+        url: ""
+      },
+      {
+        id: "2",
+        title: "Gold Rush",
+        category: "Arcade",
+        badge: "Arcade Original",
+        color: "#14532d",
+        html: `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;background:#111;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif}canvas{background:#222;border:2px solid #D4AF37}button{margin-top:10px;padding:8px 16px;background:#800000;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold}</style></head><body><h2>GOLD RUSH</h2><p id="score">Score: 0</p><canvas id="c" width="300" height="300"></canvas><button onclick="reset()">Restart</button><script>const c=document.getElementById('c'),ctx=c.getContext('2d');let snake=[{x:5,y:5}],gold={x:10,y:10},dx=1,dy=0,score=0,interval;function draw(){ctx.fillStyle='#222';ctx.fillRect(0,0,300,300);ctx.fillStyle='#D4AF37';ctx.fillRect(gold.x*15,gold.y*15,14,14);ctx.fillStyle='#800000';snake.forEach(s=>ctx.fillRect(s.x*15,s.y*15,14,14));let h={x:snake[0].x+dx,y:snake[0].y+dy};if(h.x<0||h.x>=20||h.y<0||h.y>=20){clearInterval(interval);return alert('Game Over! Score: '+score);}if(h.x===gold.x&&h.y===gold.y){score+=10;document.getElementById('score').innerText='Score: '+score;gold={x:Math.floor(Math.random()*20),y:Math.floor(Math.random()*20)};}else{snake.pop();}snake.unshift(h);}window.onkeydown=e=>{if(e.key==='ArrowUp'&&dy===0){dx=0;dy=-1;}if(e.key==='ArrowDown'&&dy===0){dx=0;dy=1;}if(e.key==='ArrowLeft'&&dx===0){dx=-1;dy=0;}if(e.key==='ArrowRight'&&dx===0){dx=1;dy=0;}};function reset(){snake=[{x:5,y:5}];dx=1;dy=0;score=0;document.getElementById('score').innerText='Score: 0';clearInterval(interval);interval=setInterval(draw,120);}reset();<\/script></body></html>`,
+        url: ""
+      },
+      {
+        id: "3",
+        title: "Match Day",
+        category: "Puzzle",
+        badge: "Arcade Original",
+        color: "#1e293b",
+        html: `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;background:#18181b;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif}#grid{display:grid;grid-template-columns:repeat(4,60px);gap:10px;margin-top:20px}.card{width:60px;height:60px;background:#800000;border:2px solid #D4AF37;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;border-radius:8px}</style></head><body><h2>MATCH DAY</h2><div id="grid"></div><script>const emojis=['⚽','🏀','🏈','⚾','⚽','🏀','🏈','⚾'];emojis.sort(()=>Math.random()-0.5);const g=document.getElementById('grid');let flipped=[];let matched=[];emojis.forEach((em,i)=>{let d=document.createElement('div');d.className='card';d.innerText='?';d.onclick=()=>{if(flipped.length<2&&!flipped.includes(i)&&!matched.includes(i)){d.innerText=em;flipped.push(i);if(flipped.length===2){setTimeout(()=>{if(emojis[flipped[0]]===emojis[flipped[1]]){matched.push(...flipped);}else{document.querySelectorAll('.card')[flipped[0]].innerText='?';document.querySelectorAll('.card')[flipped[1]].innerText='?';}flipped=[];if(matched.length===8)alert('You Won Match Day!');},500);}}};g.appendChild(d);});<\/script></body></html>`,
+        url: ""
+      }
+    ];
+
+    let allGames = [...gamesCatalog];
+    let activeFilter = 'all';
+    let currentTab = 'discover';
+    let currentUploadMethod = 'html';
+
+    // Render cards into UI
+    function renderGamesList() {
+      const grid = document.getElementById('games-grid');
+      const search = (document.getElementById('search-input').value || '').toLowerCase();
+      grid.innerHTML = '';
+
+      let list = allGames;
+      if (currentTab === 'my-uploads') {
+        list = allGames.filter(g => g.badge === 'Student Upload');
+      }
+
+      const filtered = list.filter(g => {
+        const matchCat = activeFilter === 'all' || g.category === activeFilter;
+        const matchSearch = g.title.toLowerCase().includes(search);
+        return matchCat && matchSearch;
+      });
+
+      document.getElementById('games-total-badge').textContent = `${filtered.length} games`;
+
+      filtered.forEach(game => {
+        const card = document.createElement('div');
+        card.className = 'game-card';
+        card.innerHTML = `
+          <div class="game-cover" style="background-color: ${game.color || '#800000'}">
+            <span class="game-badge">${game.badge || 'Uploaded Game'}</span>
+            <div class="game-icon-bg">🎮</div>
+          </div>
+          <div class="game-body">
+            <div>
+              <div class="game-name">${game.title}</div>
+              <div class="game-meta">${game.category} &bull; Instant play</div>
+            </div>
+            <button class="play-btn" onclick="openGamePlayer('${game.id}')">PLAY</button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      // The "+ Add" card
+      const addCard = document.createElement('div');
+      addCard.className = 'add-placeholder-card';
+      addCard.onclick = showUploadModal;
+      addCard.innerHTML = `
+        <div class="plus-circle">+</div>
+        <div style="font-weight: bold; font-size: 14px; margin-bottom: 4px;">The next one is yours.</div>
+        <div style="font-size: 12px; color: var(--stone-600); max-width: 180px;">Add a game file or link and let the good times roll.</div>
+      `;
+      grid.appendChild(addCard);
+    }
+
+    // Modal Operations
+    function showUploadModal() {
+      document.getElementById('upload-modal').classList.remove('hidden');
+    }
+
+    function hideUploadModal() {
+      document.getElementById('upload-modal').classList.add('hidden');
+      document.getElementById('upload-form').reset();
+      document.getElementById('file-chosen-text').textContent = '';
+      setMethod('html');
+    }
+
+    function setMethod(method) {
+      currentUploadMethod = method;
+      document.getElementById('tab-method-html').className = method === 'html' ? 'method-btn active' : 'method-btn';
+      document.getElementById('tab-method-url').className = method === 'url' ? 'method-btn active' : 'method-btn';
+      document.getElementById('method-html-wrap').style.display = method === 'html' ? 'block' : 'none';
+      document.getElementById('method-url-wrap').style.display = method === 'url' ? 'block' : 'none';
+    }
+
+    function updateFilePicked(input) {
+      if (input.files.length > 0) {
+        document.getElementById('file-chosen-text').textContent = input.files[0].name;
+      }
+    }
+
+    // Player Operations
+    function openGamePlayer(id) {
+      const game = allGames.find(g => String(g.id) === String(id));
+      if (!game) return;
+      document.getElementById('player-game-title').textContent = game.title;
+      const frame = document.getElementById('game-frame');
+
+      if (game.html) {
+        frame.srcdoc = game.html;
+        frame.removeAttribute('src');
+      } else if (game.url) {
+        frame.removeAttribute('srcdoc');
+        frame.src = game.url;
+      }
+      document.getElementById('player-modal').classList.remove('hidden');
+    }
+
+    function closeGamePlayer() {
+      document.getElementById('player-modal').classList.add('hidden');
+      const frame = document.getElementById('game-frame');
+      frame.removeAttribute('srcdoc');
+      frame.src = 'about:blank';
+    }
+
+    function toggleFullscreen() {
+      const frame = document.getElementById('game-frame');
+      if (frame.requestFullscreen) frame.requestFullscreen();
+      else if (frame.webkitRequestFullscreen) frame.webkitRequestFullscreen();
+    }
+
+    // Filter & Tab controls
+    function setCategoryFilter(cat) {
+      activeFilter = cat;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        if (btn.getAttribute('data-cat') === cat) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
+      renderGamesList();
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      ['discover', 'my-uploads', 'recent'].forEach(t => {
+        const el = document.getElementById(`tab-${t}`);
+        if (t === tab) el.classList.add('active');
+        else el.classList.remove('active');
+      });
+
+      const titleMap = { 'discover': 'Discover', 'my-uploads': 'My Uploads', 'recent': 'Recently Played' };
+      document.getElementById('breadcrumb-title').textContent = titleMap[tab] || 'Discover';
+      renderGamesList();
+    }
+
+    // Handling Game Upload & Direct HTTP REST to Supabase
+    async function submitNewGame(e) {
+      e.preventDefault();
+      const title = document.getElementById('game-title').value.trim();
+      const category = document.getElementById('game-cat').value;
+      const submitBtn = document.getElementById('submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Publishing to Arcade...";
+
+      const newId = String(Date.now());
+      let newGame = {
+        id: newId,
+        title: title,
+        category: category,
+        badge: "Student Upload",
+        color: "#9E1B27",
+        html: "",
+        url: ""
+      };
+
+      try {
+        if (currentUploadMethod === 'html') {
+          const fileInput = document.getElementById('file-picker');
+          const file = fileInput.files[0];
+          if (!file) {
+            alert("Please pick an HTML file first.");
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Add to arcade →";
+            return;
+          }
+
+          // Direct Storage Upload via Native Fetch (No external SDK needed)
+          const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+          const fileName = `${Date.now()}-${cleanName}`;
+
+          try {
+            const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/games/${fileName}`, {
+              method: 'POST',
+              headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'text/html'
+              },
+              body: file
+            });
+
+            if (uploadRes.ok) {
+              newGame.url = `${SUPABASE_URL}/storage/v1/object/public/games/${fileName}`;
+            } else {
+              // Local fallback if storage policy isn't configured
+              newGame.html = await file.text();
+            }
+          } catch (err) {
+            newGame.html = await file.text();
+          }
+        } else {
+          newGame.url = document.getElementById('game-url').value.trim();
+        }
+
+        // Save DB Record via Native Fetch REST
+        try {
+          await fetch(`${SUPABASE_URL}/rest/v1/games`, {
+            method: 'POST',
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({
+              id: newGame.id,
+              title: newGame.title,
+              category: newGame.category,
+              badge: newGame.badge,
+              color: newGame.color,
+              url: newGame.url || ""
+            })
+          });
+        } catch (dbErr) {
+          console.warn("DB save note:", dbErr);
+        }
+
+        allGames.unshift(newGame);
+        hideUploadModal();
+        renderGamesList();
+      } catch (err) {
+        alert("Upload error: " + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Add to arcade →";
+      }
+    }
+
+    // Load games from Supabase in background
+    async function loadCloudGames() {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/games?select=*&order=created_at.desc`, {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            allGames = [...data, ...gamesCatalog];
+            renderGamesList();
+          }
+        }
+      } catch (e) {
+        console.warn("Background load fallback:", e);
+      }
+    }
+
+    // Immediate start
+    renderGamesList();
+    loadCloudGames();
+  </script>
+</body>
+</html>
