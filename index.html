@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flyer Arcade | Chaminade High School</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            crimson: {
+              800: '#6B0F1A',
+              900: '#4A0A10',
+              DEFAULT: '#800000',
+              light: '#9E1B27'
+            },
+            gold: {
+              DEFAULT: '#D4AF37',
+              dark: '#AA820A',
+              light: '#F3E5AB'
+            },
+            sand: '#F7F6F2'
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-sand text-stone-900 font-sans min-h-screen flex flex-col md:flex-row">
+
+  <!-- Sidebar -->
+  <aside class="w-full md:w-64 bg-white border-r border-stone-200 flex flex-col justify-between p-6">
+    <div>
+      <div class="flex items-center gap-3 mb-8">
+        <div class="w-10 h-10 bg-crimson rounded-lg flex items-center justify-center text-gold font-serif font-black text-2xl shadow">
+          C
+        </div>
+        <div>
+          <h1 class="font-bold text-lg tracking-tight text-crimson-900 leading-none">FLYER ARCADE</h1>
+          <p class="text-xs text-stone-600 uppercase tracking-widest font-semibold mt-1">Chaminade High School</p>
+        </div>
+      </div>
+
+      <p class="text-xs uppercase tracking-wider text-stone-600 font-bold mb-3">Your Playbook</p>
+      <nav class="space-y-1">
+        <button onclick="setTab('discover')" id="tab-discover" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-crimson/10 text-crimson font-semibold text-sm transition">
+          <i data-lucide="compass" class="w-4 h-4"></i> Discover
+        </button>
+        <button onclick="setTab('my-uploads')" id="tab-my-uploads" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-stone-600 hover:bg-stone-100 font-medium text-sm transition">
+          <i data-lucide="cloud-upload" class="w-4 h-4"></i> My Uploads
+        </button>
+        <button onclick="setTab('recent')" id="tab-recent" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-stone-600 hover:bg-stone-100 font-medium text-sm transition">
+          <i data-lucide="history" class="w-4 h-4"></i> Recently Played
+        </button>
+      </nav>
+    </div>
+
+    <div class="pt-6 border-t border-stone-200 text-xs text-stone-600 mt-6 md:mt-0">
+      <p class="font-bold text-crimson uppercase tracking-wide">Red. Gold. Game On.</p>
+      <p class="mt-1">Fortes in Fide. A Marianist student showcase.</p>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 flex flex-col min-h-screen overflow-y-auto">
+    <!-- Header -->
+    <header class="bg-white border-b border-stone-200 px-8 py-4 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-10">
+      <div class="text-xs text-stone-600 font-medium flex items-center gap-2">
+        <span>The arcade</span>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span id="breadcrumb" class="text-stone-900 font-semibold">Discover</span>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="relative">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-600 pointer-events-none"></i>
+          <input type="text" id="search-input" oninput="filterGames()" placeholder="Search games..." class="pl-9 pr-4 py-2 border border-stone-300 rounded-lg text-sm bg-stone-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-crimson/30 focus:border-crimson w-48 sm:w-64" />
+        </div>
+        <button onclick="openModal()" class="flex items-center gap-2 px-4 py-2 bg-crimson hover:bg-crimson-light text-white font-semibold text-sm rounded-lg shadow-sm transition">
+          <i data-lucide="plus" class="w-4 h-4 text-gold"></i> Add a game
+        </button>
+      </div>
+    </header>
+
+    <div class="p-8 max-w-7xl mx-auto w-full space-y-8 flex-1">
+      <!-- Hero Banner -->
+      <section class="bg-gradient-to-r from-crimson-900 via-crimson to-crimson-800 rounded-2xl p-8 text-white relative overflow-hidden shadow-lg border border-gold/30">
+        <div class="relative z-10 max-w-xl">
+          <span class="text-gold font-bold text-xs uppercase tracking-widest bg-black/30 px-2.5 py-1 rounded">The Flyer Collection</span>
+          <h2 class="text-4xl font-black mt-3 leading-tight tracking-tight">YOUR NEXT<br /><span class="text-gold">HIGH SCORE.</span></h2>
+          <p class="text-stone-200 text-sm mt-3 leading-relaxed">
+            Your games. Your home court. A Chaminade-inspired arcade built for one more round.
+          </p>
+          <button onclick="document.getElementById('catalog').scrollIntoView({behavior: 'smooth'})" class="mt-6 px-5 py-2.5 bg-white text-crimson-900 font-bold rounded-lg text-sm hover:bg-gold-light transition shadow">
+            Explore the arcade &rarr;
+          </button>
+        </div>
+        <div class="absolute right-8 bottom-4 text-right opacity-15 text-gold font-black text-8xl pointer-events-none select-none">
+          1930
+        </div>
+      </section>
+
+      <!-- Catalog -->
+      <section id="catalog" class="space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-xl font-bold text-stone-900">Pick your next obsession.</h3>
+            <p class="text-xs text-stone-600">A study break, upgraded. Click a game and jump right in.</p>
+          </div>
+          <span id="game-count" class="text-xs text-stone-600 font-semibold bg-stone-200 px-2.5 py-1 rounded-full">0 games</span>
+        </div>
+
+        <!-- Category Filter Tabs -->
+        <div class="flex gap-2 border-b border-stone-200 pb-3 overflow-x-auto">
+          <button onclick="filterCategory('all')" class="cat-btn px-4 py-1.5 rounded-lg text-xs font-bold bg-stone-900 text-white" data-cat="all">All games</button>
+          <button onclick="filterCategory('Arcade')" class="cat-btn px-4 py-1.5 rounded-lg text-xs font-semibold text-stone-600 hover:bg-stone-200" data-cat="Arcade">Arcade</button>
+          <button onclick="filterCategory('Puzzle')" class="cat-btn px-4 py-1.5 rounded-lg text-xs font-semibold text-stone-600 hover:bg-stone-200" data-cat="Puzzle">Puzzle</button>
+          <button onclick="filterCategory('Sports')" class="cat-btn px-4 py-1.5 rounded-lg text-xs font-semibold text-stone-600 hover:bg-stone-200" data-cat="Sports">Sports</button>
+          <button onclick="filterCategory('Other')" class="cat-btn px-4 py-1.5 rounded-lg text-xs font-semibold text-stone-600 hover:bg-stone-200" data-cat="Other">Other</button>
+        </div>
+
+        <!-- Games Grid -->
+        <div id="games-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
+          <!-- Injected via JS -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-stone-200 px-8 py-4 text-xs text-stone-600 flex justify-between items-center">
+      <div>FLYER ARCADE &bull; CHAMINADE INSPIRED</div>
+      <div>Independent student project &bull; Fortes in Fide</div>
+    </footer>
+  </main>
+
+  <!-- Upload Modal -->
+  <div id="upload-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative border border-stone-200 max-h-[90vh] overflow-y-auto">
+      <button onclick="closeModal()" class="absolute top-4 right-4 text-stone-600 hover:text-stone-900 text-lg font-bold">
+        ✕
+      </button>
+
+      <div class="mb-4">
+        <h3 class="text-xl font-bold text-stone-900">Make room for a new favorite.</h3>
+        <p class="text-xs text-stone-600">Publish a game to your browser arcade.</p>
+      </div>
+
+      <form id="upload-form" onsubmit="handleGameUpload(event)" class="space-y-4 text-sm">
+        <div>
+          <label class="block font-semibold text-stone-700 mb-1">Game title *</label>
+          <input type="text" id="form-title" required placeholder="Give your game a name" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-crimson/30 focus:border-crimson outline-none" />
+        </div>
+
+        <div>
+          <label class="block font-semibold text-stone-700 mb-1">Category *</label>
+          <select id="form-category" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-crimson/30 focus:border-crimson outline-none">
+            <option value="Arcade">Arcade</option>
+            <option value="Puzzle">Puzzle</option>
+            <option value="Sports">Sports</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-stone-700 mb-1">Upload Method</label>
+          <div class="grid grid-cols-3 gap-2 mb-3">
+            <button type="button" onclick="setUploadType('html')" id="btn-type-html" class="py-2 text-xs font-bold rounded-lg border border-crimson bg-crimson/10 text-crimson">HTML file</button>
+            <button type="button" onclick="setUploadType('folder')" id="btn-type-folder" class="py-2 text-xs font-bold rounded-lg border border-stone-300 text-stone-600">Game folder</button>
+            <button type="button" onclick="setUploadType('url')" id="btn-type-url" class="py-2 text-xs font-bold rounded-lg border border-stone-300 text-stone-600">Website link</button>
+          </div>
+
+          <!-- HTML File input -->
+          <div id="input-html-wrap" class="border-2 border-dashed border-stone-300 rounded-xl p-6 text-center hover:border-crimson transition cursor-pointer" onclick="document.getElementById('file-html').click()">
+            <div class="w-8 h-8 mx-auto text-crimson font-black text-xl mb-1">📄</div>
+            <p class="font-semibold text-stone-800 text-xs">Choose a standalone .html file</p>
+            <p class="text-[11px] text-stone-600 mt-1">Single-file games with bundled scripts and styles</p>
+            <input type="file" id="file-html" accept=".html,.htm" class="hidden" onchange="updateFileLabel('file-html', 'file-html-name')" />
+            <p id="file-html-name" class="mt-2 text-xs font-bold text-crimson"></p>
+          </div>
+
+          <!-- Folder upload -->
+          <div id="input-folder-wrap" class="hidden border-2 border-dashed border-stone-300 rounded-xl p-6 text-center hover:border-crimson transition cursor-pointer" onclick="document.getElementById('file-folder').click()">
+            <div class="w-8 h-8 mx-auto text-crimson font-black text-xl mb-1">📁</div>
+            <p class="font-semibold text-stone-800 text-xs">Choose a game folder or zip</p>
+            <p class="text-[11px] text-stone-600 mt-1">Select files containing index.html</p>
+            <input type="file" id="file-folder" webkitdirectory directory multiple class="hidden" onchange="updateFileLabel('file-folder', 'file-folder-name')" />
+            <p id="file-folder-name" class="mt-2 text-xs font-bold text-crimson"></p>
+          </div>
+
+          <!-- URL input -->
+          <div id="input-url-wrap" class="hidden space-y-1">
+            <input type="url" id="form-url" placeholder="https://example.com/game" class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-crimson/30 focus:border-crimson outline-none" />
+            <p class="text-[11px] text-stone-600">Direct link to an externally hosted web game.</p>
+          </div>
+        </div>
+
+        <button type="submit" id="btn-submit" class="w-full py-3 bg-crimson hover:bg-crimson-light text-white font-bold rounded-xl shadow-md transition">
+          Add to arcade &rarr;
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Game Runner Modal -->
+  <div id="player-modal" class="fixed inset-0 bg-black/95 z-50 flex flex-col hidden">
+    <div class="bg-stone-900 text-white px-6 py-3 flex items-center justify-between border-b border-stone-800">
+      <div class="flex items-center gap-3">
+        <span class="w-3 h-3 rounded-full bg-crimson"></span>
+        <h4 id="player-title" class="font-bold text-sm tracking-wide">Game Title</h4>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="toggleFullscreen()" class="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-xs font-bold rounded">Fullscreen</button>
+        <button onclick="closePlayer()" class="px-3 py-1.5 bg-crimson hover:bg-crimson-light text-xs font-bold rounded">Close ✕</button>
+      </div>
+    </div>
+    <div class="flex-1 w-full h-full bg-stone-950 relative flex items-center justify-center p-2">
+      <iframe id="game-frame" class="w-full h-full max-w-5xl rounded-lg bg-white border-0 shadow-2xl" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+    </div>
+  </div>
+
+  <script>
+    // Built-in working playable games
+    const playableGames = {
+      goldRushHtml: `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;background:#111;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif}canvas{background:#222;border:2px solid #D4AF37}button{margin-top:10px;padding:8px 16px;background:#800000;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold}</style></head><body><h2>GOLD RUSH</h2><p id="score">Score: 0</p><canvas id="c" width="300" height="300"></canvas><button onclick="reset()">Restart</button><script>const c=document.getElementById('c'),ctx=c.getContext('2d');let snake=[{x:5,y:5}],gold={x:10,y:10},dx=1,dy=0,score=0,interval;function draw(){ctx.fillStyle='#222';ctx.fillRect(0,0,300,300);ctx.fillStyle='#D4AF37';ctx.fillRect(gold.x*15,gold.y*15,14,14);ctx.fillStyle='#800000';snake.forEach(s=>ctx.fillRect(s.x*15,s.y*15,14,14));let h={x:snake[0].x+dx,y:snake[0].y+dy};if(h.x<0||h.x>=20||h.y<0||h.y>=20){clearInterval(interval);return alert('Game Over! Score: '+score);}if(h.x===gold.x&&h.y===gold.y){score+=10;document.getElementById('score').innerText='Score: '+score;gold={x:Math.floor(Math.random()*20),y:Math.floor(Math.random()*20)};}else{snake.pop();}snake.unshift(h);}window.onkeydown=e=>{if(e.key==='ArrowUp'&&dy===0){dx=0;dy=-1;}if(e.key==='ArrowDown'&&dy===0){dx=0;dy=1;}if(e.key==='ArrowLeft'&&dx===0){dx=-1;dy=0;}if(e.key==='ArrowRight'&&dx===0){dx=1;dy=0;}};function reset(){snake=[{x:5,y:5}];dx=1;dy=0;score=0;document.getElementById('score').innerText='Score: 0';clearInterval(interval);interval=setInterval(draw,120);}reset();<\/script></body></html>`,
+      matchDayHtml: `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;background:#18181b;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif}#grid{display:grid;grid-template-columns:repeat(4,60px);gap:10px;margin-top:20px}.card{width:60px;height:60px;background:#800000;border:2px solid #D4AF37;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;border-radius:8px}</style></head><body><h2>MATCH DAY</h2><div id="grid"></div><script>const emojis=['⚽','🏀','🏈','⚾','⚽','🏀','🏈','⚾'];emojis.sort(()=>Math.random()-0.5);const g=document.getElementById('grid');let flipped=[];let matched=[];emojis.forEach((em,i)=>{let d=document.createElement('div');d.className='card';d.innerText='?';d.onclick=()=>{if(flipped.length<2&&!flipped.includes(i)&&!matched.includes(i)){d.innerText=em;flipped.push(i);if(flipped.length===2){setTimeout(()=>{if(emojis[flipped[0]]===emojis[flipped[1]]){matched.push(...flipped);}else{document.querySelectorAll('.card')[flipped[0]].innerText='?';document.querySelectorAll('.card')[flipped[1]].innerText='?';}flipped=[];if(matched.length===8)alert('You Won Match Day!');},500);}}};g.appendChild(d);});<\/script></body></html>`,
+      michaelHtml: `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;background:#1e1b4b;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif}button{padding:12px 24px;background:#D4AF37;color:#4A0A10;border:none;border-radius:6px;font-weight:bold;cursor:pointer;margin-top:15px}</style></head><body><h1 style="color:#D4AF37;letter-spacing:2px">MICHAEL HEAVENLY CHAMBERS</h1><p>Marianist Sky Platformer Demo</p><button onclick="alert('Mission Started: Explore the Heavenly Chambers!')">START MISSION</button></body></html>`
+    };
+
+    let games = [
+      {
+        id: "1",
+        title: "Michael Heavenly Chambers",
+        category: "Arcade",
+        badge: "Arcade Original",
+        color: "bg-crimson",
+        htmlContent: playableGames.michaelHtml,
+        url: ""
+      },
+      {
+        id: "2",
+        title: "Gold Rush",
+        category: "Arcade",
+        badge: "Arcade Original",
+        color: "bg-emerald-900",
+        htmlContent: playableGames.goldRushHtml,
+        url: ""
+      },
+      {
+        id: "3",
+        title: "Match Day",
+        category: "Puzzle",
+        badge: "Arcade Original",
+        color: "bg-slate-800",
+        htmlContent: playableGames.matchDayHtml,
+        url: ""
+      }
+    ];
+
+    let currentUploadType = 'html';
+    let activeCategory = 'all';
+    let currentTab = 'discover';
+
+    function init() {
+      // Load saved uploads from localStorage
+      try {
+        const saved = localStorage.getItem('flyer_arcade_games');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            games = [...parsed, ...games];
+          }
+        }
+      } catch (e) {
+        console.error('Storage error', e);
+      }
+
+      renderGames();
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function renderGames() {
+      const grid = document.getElementById('games-grid');
+      const search = (document.getElementById('search-input').value || '').toLowerCase();
+      grid.innerHTML = '';
+
+      let list = games;
+      if (currentTab === 'my-uploads') {
+        list = games.filter(g => g.badge === 'Student Upload');
+      }
+
+      const filtered = list.filter(g => {
+        const matchesCat = activeCategory === 'all' || g.category === activeCategory;
+        const matchesSearch = g.title.toLowerCase().includes(search);
+        return matchesCat && matchesSearch;
+      });
+
+      document.getElementById('game-count').textContent = `${filtered.length} games`;
+
+      filtered.forEach(game => {
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between";
+        card.innerHTML = `
+          <div class="h-36 ${game.color || 'bg-crimson'} p-4 flex flex-col justify-between relative text-white">
+            <span class="text-[10px] font-bold tracking-widest uppercase bg-black/40 px-2 py-0.5 rounded w-max">${game.badge || 'Uploaded Game'}</span>
+            <div class="w-full flex justify-center items-center opacity-25">
+              <span class="text-4xl">🎮</span>
+            </div>
+          </div>
+          <div class="p-4 flex items-center justify-between">
+            <div>
+              <h4 class="font-bold text-stone-900 text-sm">${game.title}</h4>
+              <p class="text-xs text-stone-600 mt-0.5">${game.category} &bull; Instant play</p>
+            </div>
+            <button onclick="launchGameById('${game.id}')" class="px-3.5 py-1.5 bg-stone-100 hover:bg-crimson hover:text-white text-stone-800 text-xs font-bold rounded-lg transition">
+              PLAY
+            </button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      // Add "The next one is yours" card
+      const addCard = document.createElement('div');
+      addCard.className = "border-2 border-dashed border-stone-300 rounded-xl p-6 flex flex-col items-center justify-center text-center hover:border-crimson transition cursor-pointer min-h-[200px]";
+      addCard.onclick = openModal;
+      addCard.innerHTML = `
+        <div class="w-10 h-10 rounded-full bg-crimson/10 text-crimson flex items-center justify-center mb-3 font-bold text-lg">
+          +
+        </div>
+        <h4 class="font-bold text-stone-800 text-sm">The next one is yours.</h4>
+        <p class="text-xs text-stone-600 mt-1 max-w-[180px]">Add a game file or link and let the good times roll.</p>
+      `;
+      grid.appendChild(addCard);
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function launchGameById(id) {
+      const game = games.find(g => g.id === id);
+      if (!game) return;
+      document.getElementById('player-title').textContent = game.title;
+      const frame = document.getElementById('game-frame');
+
+      if (game.htmlContent) {
+        frame.srcdoc = game.htmlContent;
+        frame.removeAttribute('src');
+      } else if (game.url) {
+        frame.removeAttribute('srcdoc');
+        frame.src = game.url;
+      }
+      document.getElementById('player-modal').classList.remove('hidden');
+    }
+
+    function setUploadType(type) {
+      currentUploadType = type;
+      ['html', 'folder', 'url'].forEach(t => {
+        const btn = document.getElementById(`btn-type-${t}`);
+        const wrap = document.getElementById(`input-${t}-wrap`);
+        if (t === type) {
+          btn.className = "py-2 text-xs font-bold rounded-lg border border-crimson bg-crimson/10 text-crimson";
+          wrap.classList.remove('hidden');
+        } else {
+          btn.className = "py-2 text-xs font-bold rounded-lg border border-stone-300 text-stone-600";
+          wrap.classList.add('hidden');
+        }
+      });
+    }
+
+    function updateFileLabel(inputId, labelId) {
+      const input = document.getElementById(inputId);
+      const label = document.getElementById(labelId);
+      if (input.files.length > 0) {
+        label.textContent = input.files.length === 1 ? input.files[0].name : `${input.files.length} files selected`;
+      }
+    }
+
+    function handleGameUpload(e) {
+      e.preventDefault();
+      const title = document.getElementById('form-title').value;
+      const category = document.getElementById('form-category').value;
+      const submitBtn = document.getElementById('btn-submit');
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Adding...";
+
+      const newId = String(Date.now());
+      let newGame = {
+        id: newId,
+        title,
+        category,
+        badge: "Student Upload",
+        color: "bg-crimson-light",
+        htmlContent: "",
+        url: ""
+      };
+
+      if (currentUploadType === 'html') {
+        const file = document.getElementById('file-html').files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            newGame.htmlContent = event.target.result;
+            saveAndFinish(newGame);
+          };
+          reader.readAsText(file);
+          return;
+        } else {
+          alert("Please select an HTML file.");
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Add to arcade →";
+          return;
+        }
+      } else if (currentUploadType === 'url') {
+        const url = document.getElementById('form-url').value;
+        if (!url) {
+          alert("Please enter a valid website URL.");
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Add to arcade →";
+          return;
+        }
+        newGame.url = url;
+        saveAndFinish(newGame);
+      } else {
+        // Fallback demo for folder
+        newGame.htmlContent = "<h1>Folder Game Loaded</h1>";
+        saveAndFinish(newGame);
+      }
+    }
+
+    function saveAndFinish(newGame) {
+      games.unshift(newGame);
+      try {
+        const myUploads = games.filter(g => g.badge === 'Student Upload');
+        localStorage.setItem('flyer_arcade_games', JSON.stringify(myUploads));
+      } catch (e) {
+        console.warn('Storage limit reached, running in memory only');
+      }
+      closeModal();
+      renderGames();
+      const submitBtn = document.getElementById('btn-submit');
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Add to arcade →";
+    }
+
+    function filterCategory(cat) {
+      activeCategory = cat;
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        if (btn.getAttribute('data-cat') === cat) {
+          btn.className = "cat-btn px-4 py-1.5 rounded-lg text-xs font-bold bg-stone-900 text-white";
+        } else {
+          btn.className = "cat-btn px-4 py-1.5 rounded-lg text-xs font-semibold text-stone-600 hover:bg-stone-200";
+        }
+      });
+      renderGames();
+    }
+
+    function filterGames() {
+      renderGames();
+    }
+
+    function closePlayer() {
+      document.getElementById('player-modal').classList.add('hidden');
+      const frame = document.getElementById('game-frame');
+      frame.removeAttribute('srcdoc');
+      frame.src = 'about:blank';
+    }
+
+    function toggleFullscreen() {
+      const frame = document.getElementById('game-frame');
+      if (frame.requestFullscreen) {
+        frame.requestFullscreen();
+      } else if (frame.webkitRequestFullscreen) {
+        frame.webkitRequestFullscreen();
+      }
+    }
+
+    function openModal() {
+      document.getElementById('upload-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('upload-modal').classList.add('hidden');
+      document.getElementById('upload-form').reset();
+      document.getElementById('file-html-name').textContent = '';
+      document.getElementById('file-folder-name').textContent = '';
+      setUploadType('html');
+    }
+
+    function setTab(tab) {
+      currentTab = tab;
+      const breadcrumb = document.getElementById('breadcrumb');
+      ['discover', 'my-uploads', 'recent'].forEach(t => {
+        const el = document.getElementById(`tab-${t}`);
+        if (t === tab) {
+          el.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-crimson/10 text-crimson font-semibold text-sm transition";
+        } else {
+          el.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-stone-600 hover:bg-stone-100 font-medium text-sm transition";
+        }
+      });
+
+      if (tab === 'discover') breadcrumb.textContent = 'Discover';
+      if (tab === 'my-uploads') breadcrumb.textContent = 'My Uploads';
+      if (tab === 'recent') breadcrumb.textContent = 'Recently Played';
+
+      renderGames();
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
