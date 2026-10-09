@@ -8,6 +8,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -147,7 +149,7 @@
 
       <div class="mb-4">
         <h3 class="text-xl font-bold text-stone-900">Make room for a new favorite.</h3>
-        <p class="text-xs text-stone-600">Publish a game to your browser arcade.</p>
+        <p class="text-xs text-stone-600">Publish a game to the shared arcade.</p>
       </div>
 
       <form id="upload-form" onsubmit="handleGameUpload(event)" class="space-y-4 text-sm">
@@ -168,9 +170,8 @@
 
         <div>
           <label class="block font-semibold text-stone-700 mb-1">Upload Method</label>
-          <div class="grid grid-cols-3 gap-2 mb-3">
+          <div class="grid grid-cols-2 gap-2 mb-3">
             <button type="button" onclick="setUploadType('html')" id="btn-type-html" class="py-2 text-xs font-bold rounded-lg border border-crimson bg-crimson/10 text-crimson">HTML file</button>
-            <button type="button" onclick="setUploadType('folder')" id="btn-type-folder" class="py-2 text-xs font-bold rounded-lg border border-stone-300 text-stone-600">Game folder</button>
             <button type="button" onclick="setUploadType('url')" id="btn-type-url" class="py-2 text-xs font-bold rounded-lg border border-stone-300 text-stone-600">Website link</button>
           </div>
 
@@ -178,18 +179,9 @@
           <div id="input-html-wrap" class="border-2 border-dashed border-stone-300 rounded-xl p-6 text-center hover:border-crimson transition cursor-pointer" onclick="document.getElementById('file-html').click()">
             <div class="w-8 h-8 mx-auto text-crimson font-black text-xl mb-1">📄</div>
             <p class="font-semibold text-stone-800 text-xs">Choose a standalone .html file</p>
-            <p class="text-[11px] text-stone-600 mt-1">Single-file games with bundled scripts and styles</p>
+            <p class="text-[11px] text-stone-600 mt-1">Upload a single-file game with all scripts bundled</p>
             <input type="file" id="file-html" accept=".html,.htm" class="hidden" onchange="updateFileLabel('file-html', 'file-html-name')" />
             <p id="file-html-name" class="mt-2 text-xs font-bold text-crimson"></p>
-          </div>
-
-          <!-- Folder upload -->
-          <div id="input-folder-wrap" class="hidden border-2 border-dashed border-stone-300 rounded-xl p-6 text-center hover:border-crimson transition cursor-pointer" onclick="document.getElementById('file-folder').click()">
-            <div class="w-8 h-8 mx-auto text-crimson font-black text-xl mb-1">📁</div>
-            <p class="font-semibold text-stone-800 text-xs">Choose a game folder or zip</p>
-            <p class="text-[11px] text-stone-600 mt-1">Select files containing index.html</p>
-            <input type="file" id="file-folder" webkitdirectory directory multiple class="hidden" onchange="updateFileLabel('file-folder', 'file-folder-name')" />
-            <p id="file-folder-name" class="mt-2 text-xs font-bold text-crimson"></p>
           </div>
 
           <!-- URL input -->
@@ -224,14 +216,29 @@
   </div>
 
   <script>
-    // Built-in working playable games
+    // ==========================================
+    // 1. SUPABASE CONFIGURATION (CONECTED)
+    // ==========================================
+    const SUPABASE_URL = "https://owxgkopzbmrrdwsptbof.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_ZLcl4_ffdL4CamEjWgXqnw__M__yXYl";
+
+    let supabase = null;
+    if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
+      try {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      } catch (err) {
+        console.error("Supabase init error:", err);
+      }
+    }
+
+    // Built-in starter games
     const playableGames = {
-      goldRushHtml: `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;background:#111;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif}canvas{background:#222;border:2px solid #D4AF37}button{margin-top:10px;padding:8px 16px;background:#800000;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold}</style></head><body><h2>GOLD RUSH</h2><p id="score">Score: 0</p><canvas id="c" width="300" height="300"></canvas><button onclick="reset()">Restart</button><script>const c=document.getElementById('c'),ctx=c.getContext('2d');let snake=[{x:5,y:5}],gold={x:10,y:10},dx=1,dy=0,score=0,interval;function draw(){ctx.fillStyle='#222';ctx.fillRect(0,0,300,300);ctx.fillStyle='#D4AF37';ctx.fillRect(gold.x*15,gold.y*15,14,14);ctx.fillStyle='#800000';snake.forEach(s=>ctx.fillRect(s.x*15,s.y*15,14,14));let h={x:snake[0].x+dx,y:snake[0].y+dy};if(h.x<0||h.x>=20||h.y<0||h.y>=20){clearInterval(interval);return alert('Game Over! Score: '+score);}if(h.x===gold.x&&h.y===gold.y){score+=10;document.getElementById('score').innerText='Score: '+score;gold={x:Math.floor(Math.random()*20),y:Math.floor(Math.random()*20)};}else{snake.pop();}snake.unshift(h);}window.onkeydown=e=>{if(e.key==='ArrowUp'&&dy===0){dx=0;dy=-1;}if(e.key==='ArrowDown'&&dy===0){dx=0;dy=1;}if(e.key==='ArrowLeft'&&dx===0){dx=-1;dy=0;}if(e.key==='ArrowRight'&&dx===0){dx=1;dy=0;}};function reset(){snake=[{x:5,y:5}];dx=1;dy=0;score=0;document.getElementById('score').innerText='Score: 0';clearInterval(interval);interval=setInterval(draw,120);}reset();<\/script></body></html>`,
+      goldRushHtml: `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;background:#111;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif}canvas{background:#222;border:2px solid #D4AF37}button{margin-top:10px;padding:8px 16px;background:#800000;color:#fff;border:none;border-radius:4px;cursor:font-weight:bold}</style></head><body><h2>GOLD RUSH</h2><p id="score">Score: 0</p><canvas id="c" width="300" height="300"></canvas><button onclick="reset()">Restart</button><script>const c=document.getElementById('c'),ctx=c.getContext('2d');let snake=[{x:5,y:5}],gold={x:10,y:10},dx=1,dy=0,score=0,interval;function draw(){ctx.fillStyle='#222';ctx.fillRect(0,0,300,300);ctx.fillStyle='#D4AF37';ctx.fillRect(gold.x*15,gold.y*15,14,14);ctx.fillStyle='#800000';snake.forEach(s=>ctx.fillRect(s.x*15,s.y*15,14,14));let h={x:snake[0].x+dx,y:snake[0].y+dy};if(h.x<0||h.x>=20||h.y<0||h.y>=20){clearInterval(interval);return alert('Game Over! Score: '+score);}if(h.x===gold.x&&h.y===gold.y){score+=10;document.getElementById('score').innerText='Score: '+score;gold={x:Math.floor(Math.random()*20),y:Math.floor(Math.random()*20)};}else{snake.pop();}snake.unshift(h);}window.onkeydown=e=>{if(e.key==='ArrowUp'&&dy===0){dx=0;dy=-1;}if(e.key==='ArrowDown'&&dy===0){dx=0;dy=1;}if(e.key==='ArrowLeft'&&dx===0){dx=-1;dy=0;}if(e.key==='ArrowRight'&&dx===0){dx=1;dy=0;}};function reset(){snake=[{x:5,y:5}];dx=1;dy=0;score=0;document.getElementById('score').innerText='Score: 0';clearInterval(interval);interval=setInterval(draw,120);}reset();<\/script></body></html>`,
       matchDayHtml: `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;background:#18181b;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif}#grid{display:grid;grid-template-columns:repeat(4,60px);gap:10px;margin-top:20px}.card{width:60px;height:60px;background:#800000;border:2px solid #D4AF37;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;border-radius:8px}</style></head><body><h2>MATCH DAY</h2><div id="grid"></div><script>const emojis=['⚽','🏀','🏈','⚾','⚽','🏀','🏈','⚾'];emojis.sort(()=>Math.random()-0.5);const g=document.getElementById('grid');let flipped=[];let matched=[];emojis.forEach((em,i)=>{let d=document.createElement('div');d.className='card';d.innerText='?';d.onclick=()=>{if(flipped.length<2&&!flipped.includes(i)&&!matched.includes(i)){d.innerText=em;flipped.push(i);if(flipped.length===2){setTimeout(()=>{if(emojis[flipped[0]]===emojis[flipped[1]]){matched.push(...flipped);}else{document.querySelectorAll('.card')[flipped[0]].innerText='?';document.querySelectorAll('.card')[flipped[1]].innerText='?';}flipped=[];if(matched.length===8)alert('You Won Match Day!');},500);}}};g.appendChild(d);});<\/script></body></html>`,
       michaelHtml: `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;background:#1e1b4b;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif}button{padding:12px 24px;background:#D4AF37;color:#4A0A10;border:none;border-radius:6px;font-weight:bold;cursor:pointer;margin-top:15px}</style></head><body><h1 style="color:#D4AF37;letter-spacing:2px">MICHAEL HEAVENLY CHAMBERS</h1><p>Marianist Sky Platformer Demo</p><button onclick="alert('Mission Started: Explore the Heavenly Chambers!')">START MISSION</button></body></html>`
     };
 
-    let games = [
+    let baseGames = [
       {
         id: "1",
         title: "Michael Heavenly Chambers",
@@ -261,28 +268,36 @@
       }
     ];
 
+    let games = [...baseGames];
     let currentUploadType = 'html';
     let activeCategory = 'all';
     let currentTab = 'discover';
 
-    function init() {
-      // Load saved uploads from localStorage
-      try {
-        const saved = localStorage.getItem('flyer_arcade_games');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            games = [...parsed, ...games];
+    async function init() {
+      // Fetch shared games from Supabase
+      if (supabase) {
+        try {
+          const { data, error } = await supabase.from('games').select('*').order('created_at', { ascending: false });
+          if (data && !error && data.length > 0) {
+            games = [...data, ...baseGames];
           }
+        } catch (e) {
+          console.error("Failed to load from Supabase:", e);
         }
-      } catch (e) {
-        console.error('Storage error', e);
+      } else {
+        try {
+          const saved = localStorage.getItem('flyer_arcade_games');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              games = [...parsed, ...baseGames];
+            }
+          }
+        } catch (e) {}
       }
 
       renderGames();
-      if (window.lucide) {
-        lucide.createIcons();
-      }
+      if (window.lucide) lucide.createIcons();
     }
 
     function renderGames() {
@@ -339,9 +354,7 @@
       `;
       grid.appendChild(addCard);
 
-      if (window.lucide) {
-        lucide.createIcons();
-      }
+      if (window.lucide) lucide.createIcons();
     }
 
     function launchGameById(id) {
@@ -362,7 +375,7 @@
 
     function setUploadType(type) {
       currentUploadType = type;
-      ['html', 'folder', 'url'].forEach(t => {
+      ['html', 'url'].forEach(t => {
         const btn = document.getElementById(`btn-type-${t}`);
         const wrap = document.getElementById(`input-${t}-wrap`);
         if (t === type) {
@@ -379,17 +392,17 @@
       const input = document.getElementById(inputId);
       const label = document.getElementById(labelId);
       if (input.files.length > 0) {
-        label.textContent = input.files.length === 1 ? input.files[0].name : `${input.files.length} files selected`;
+        label.textContent = input.files[0].name;
       }
     }
 
-    function handleGameUpload(e) {
+    async function handleGameUpload(e) {
       e.preventDefault();
       const title = document.getElementById('form-title').value;
       const category = document.getElementById('form-category').value;
       const submitBtn = document.getElementById('btn-submit');
       submitBtn.disabled = true;
-      submitBtn.textContent = "Adding...";
+      submitBtn.textContent = "Publishing to Arcade...";
 
       const newId = String(Date.now());
       let newGame = {
@@ -402,52 +415,66 @@
         url: ""
       };
 
-      if (currentUploadType === 'html') {
-        const file = document.getElementById('file-html').files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = function(event) {
-            newGame.htmlContent = event.target.result;
-            saveAndFinish(newGame);
-          };
-          reader.readAsText(file);
-          return;
-        } else {
-          alert("Please select an HTML file.");
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Add to arcade →";
-          return;
-        }
-      } else if (currentUploadType === 'url') {
-        const url = document.getElementById('form-url').value;
-        if (!url) {
-          alert("Please enter a valid website URL.");
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Add to arcade →";
-          return;
-        }
-        newGame.url = url;
-        saveAndFinish(newGame);
-      } else {
-        // Fallback demo for folder
-        newGame.htmlContent = "<h1>Folder Game Loaded</h1>";
-        saveAndFinish(newGame);
-      }
-    }
-
-    function saveAndFinish(newGame) {
-      games.unshift(newGame);
       try {
-        const myUploads = games.filter(g => g.badge === 'Student Upload');
-        localStorage.setItem('flyer_arcade_games', JSON.stringify(myUploads));
-      } catch (e) {
-        console.warn('Storage limit reached, running in memory only');
+        if (currentUploadType === 'html') {
+          const file = document.getElementById('file-html').files[0];
+          if (!file) {
+            alert("Please select an HTML file.");
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Add to arcade →";
+            return;
+          }
+
+          if (supabase) {
+            // Upload to Supabase Storage bucket 'games'
+            const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+            const { error: uploadErr } = await supabase.storage.from('games').upload(fileName, file, { contentType: 'text/html' });
+            if (uploadErr) throw uploadErr;
+
+            const { data: publicData } = supabase.storage.from('games').getPublicUrl(fileName);
+            newGame.url = publicData.publicUrl;
+          } else {
+            const content = await file.text();
+            newGame.htmlContent = content;
+          }
+        } else if (currentUploadType === 'url') {
+          const url = document.getElementById('form-url').value;
+          if (!url) {
+            alert("Please enter a valid website URL.");
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Add to arcade →";
+            return;
+          }
+          newGame.url = url;
+        }
+
+        // Save row in Supabase database
+        if (supabase) {
+          const { error: dbErr } = await supabase.from('games').insert([{
+            id: newGame.id,
+            title: newGame.title,
+            category: newGame.category,
+            badge: newGame.badge,
+            color: newGame.color,
+            url: newGame.url
+          }]);
+          if (dbErr) throw dbErr;
+        } else {
+          const myUploads = games.filter(g => g.badge === 'Student Upload');
+          myUploads.unshift(newGame);
+          localStorage.setItem('flyer_arcade_games', JSON.stringify(myUploads));
+        }
+
+        games.unshift(newGame);
+        closeModal();
+        renderGames();
+      } catch (err) {
+        console.error("Upload failed:", err);
+        alert("Upload error: " + (err.message || "Failed to publish game. Check browser console."));
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Add to arcade →";
       }
-      closeModal();
-      renderGames();
-      const submitBtn = document.getElementById('btn-submit');
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Add to arcade →";
     }
 
     function filterCategory(cat) {
@@ -490,7 +517,6 @@
       document.getElementById('upload-modal').classList.add('hidden');
       document.getElementById('upload-form').reset();
       document.getElementById('file-html-name').textContent = '';
-      document.getElementById('file-folder-name').textContent = '';
       setUploadType('html');
     }
 
